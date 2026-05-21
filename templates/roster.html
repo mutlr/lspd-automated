@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Department Roster — LSPD{% endblock %}
+{% block header_title %}Department Roster{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Department Roster</h1>
+
+{% set rank_colors = {
+    0: '#58a6ff',
+    1: '#58a6ff',
+    2: '#79c0ff',
+    3: '#3fb950',
+    4: '#56d364',
+    5: '#d29922',
+    6: '#e3b341',
+    7: '#f0883e',
+    8: '#f85149',
+    9: '#ff7b72',
+    10: '#bc8cff'
+} %}
+
+{% for rank in rank_order %}
+    {% if rank in grouped %}
+    <div class="rank-section mb-3">
+        <div class="rank-header" style="border-left: 4px solid {{ rank_colors.get(rank, '#58a6ff') }};">
+            <div class="rank-title">
+                <h2>{{ rank_names.get(rank, 'Rank ' ~ rank) }}</h2>
+                <span class="badge badge-blue">{{ grouped[rank]|length }} officer{{ 's' if grouped[rank]|length != 1 }}</span>
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Callsign</th>
+                        <th>Badge #</th>
+                        <th>User ID</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for officer in grouped[rank] %}
+                    <tr>
+                        <td>
+                            <span class="callsign">[{{ officer.rank }}-{{ '%02d'|format(officer.unit) }}]</span>
+                        </td>
+                        <td>
+                            <span class="badge-number">#{{ officer.badge_number }}</span>
+                        </td>
+                        <td>
+                            <code style="color:var(--accent);background:rgba(88,166,255,.1);padding:2px 8px;border-radius:4px;font-size:.82rem;">{{ officer.user_id }}</code>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+{% endfor %}
+
+{% if not grouped %}
+<div class="empty-state">
+    <div class="empty-icon"></div>
+    <p>No officers in the roster.</p>
+</div>
+{% endif %}
+
+<style>
+    .rank-section { }
+
+    .rank-header {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 10px 10px 0 0;
+        padding: 18px 24px;
+    }
+
+    .rank-header + .table-wrap {
+        border-radius: 0 0 10px 10px;
+        border-top: none;
+    }
+
+    .rank-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .rank-title h2 {
+        font-size: 1.05rem;
+        font-weight: 700;
+    }
+
+    .callsign {
+        font-family: 'Courier New', monospace;
+        font-weight: 700;
+        color: var(--accent);
+        background: rgba(88,166,255,.08);
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: .85rem;
+        letter-spacing: .5px;
+    }
+
+    .badge-number {
+        color: var(--muted);
+        font-weight: 600;
+        font-size: .88rem;
+    }
+</style>
+{% endblock %}

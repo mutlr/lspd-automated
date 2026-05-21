@@ -1,0 +1,15 @@
+# Environment variables
+.env
+
+# SQLite databases
+*.db
+*.db-journal
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Temporary or platform-specific configurations
+requirements.zip
+discloud.config
+Untitled-1.py

@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Overview — LSPD{% endblock %}
+{% block header_title %}Dashboard Overview{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Dashboard Overview</h1>
+
+<!-- Stat Cards -->
+<div class="grid grid-4 mb-3">
+    <div class="card stat-card" style="border-top: 3px solid var(--accent);">
+        <div class="stat-icon"></div>
+        <div class="stat-info">
+            <div class="stat-value">{{ total_officers }}</div>
+            <div class="stat-label">Total Officers</div>
+        </div>
+    </div>
+
+    <div class="card stat-card" style="border-top: 3px solid var(--success);">
+        <div class="stat-icon"></div>
+        <div class="stat-info">
+            <div class="stat-value">{{ on_duty }}</div>
+            <div class="stat-label">On Duty</div>
+        </div>
+    </div>
+
+    <div class="card stat-card" style="border-top: 3px solid var(--warning);">
+        <div class="stat-icon"></div>
+        <div class="stat-info">
+            <div class="stat-value">{{ total_warnings }}</div>
+            <div class="stat-label">Total Warnings</div>
+        </div>
+    </div>
+
+    <div class="card stat-card" style="border-top: 3px solid var(--error);">
+        <div class="stat-icon"></div>
+        <div class="stat-info">
+            <div class="stat-value">{{ total_security }}</div>
+            <div class="stat-label">Security Events</div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Security Events -->
+<div class="card" style="padding:0;">
+    <div class="section-header">
+        <h2>Recent Security Events</h2>
+    </div>
+
+    {% if recent_events %}
+    <div class="overflow-x">
+        <table>
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>User ID</th>
+                    <th>Details</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for event in recent_events %}
+                <tr>
+                    <td><span class="badge badge-orange">{{ event.event_type }}</span></td>
+                    <td><code style="color:var(--accent);background:rgba(88,166,255,.1);padding:2px 8px;border-radius:4px;font-size:.82rem;">{{ event.user_id }}</code></td>
+                    <td>{{ event.details }}</td>
+                    <td class="text-muted timestamp-cell" data-ts="{{ event.timestamp }}">—</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon"></div>
+        <p>No security events recorded.</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .stat-card {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        padding: 24px;
+    }
+
+    .stat-icon {
+        font-size: 2.2rem;
+        flex-shrink: 0;
+        width: 56px;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255,255,255,.03);
+        border-radius: 12px;
+    }
+
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: 800;
+        line-height: 1;
+        margin-bottom: 4px;
+    }
+
+    .stat-label {
+        font-size: .8rem;
+        color: var(--muted);
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+    }
+
+    .section-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .section-header h2 {
+        font-size: 1.05rem;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.querySelectorAll('.timestamp-cell').forEach(el => {
+        const ts = parseFloat(el.dataset.ts);
+        if (!isNaN(ts)) {
+            el.textContent = new Date(ts * 1000).toLocaleString();
+        }
+    });
+</script>
+{% endblock %}

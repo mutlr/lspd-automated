@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}Activity Stats — LSPD{% endblock %}
+{% block header_title %}Activity Stats{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Activity Stats</h1>
+
+{% if stats %}
+<div class="table-wrap">
+    <div class="overflow-x">
+        <table id="statsTable">
+            <thead>
+                <tr>
+                    <th class="sortable" data-col="0" data-type="string">Callsign <span class="sort-arrow"></span></th>
+                    <th class="sortable" data-col="1" data-type="string">Rank <span class="sort-arrow"></span></th>
+                    <th class="sortable" data-col="2" data-type="number">Hours <span class="sort-arrow"></span></th>
+                    <th class="sortable" data-col="3" data-type="number">Arrests <span class="sort-arrow"></span></th>
+                    <th class="sortable" data-col="4" data-type="number">Robberies <span class="sort-arrow"></span></th>
+                    <th class="sortable" data-col="5" data-type="number">Tickets <span class="sort-arrow"></span></th>
+                    <th class="sortable" data-col="6" data-type="number">FTO <span class="sort-arrow"></span></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in stats %}
+                <tr>
+                    <td>
+                        <span class="callsign">[{{ s.rank }}-{{ '%02d'|format(s.unit) }}]</span>
+                    </td>
+                    <td>{{ rank_names.get(s.rank, 'Rank ' ~ s.rank) }}</td>
+                    <td>
+                        {% set hours = s.hours|float %}
+                        <span class="hours-val {% if hours > 5 %}hours-good{% elif hours >= 1 %}hours-mid{% else %}hours-low{% endif %}">
+                            {{ '%.1f'|format(hours) }}h
+                        </span>
+                    </td>
+                    <td>{{ s.arrests }}</td>
+                    <td>{{ s.robberies }}</td>
+                    <td>{{ s.tickets }}</td>
+                    <td>{{ s.fto }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="empty-state">
+    <div class="empty-icon"></div>
+    <p>No activity stats available.</p>
+</div>
+{% endif %}
+
+<style>
+    .callsign {
+        font-family: 'Courier New', monospace;
+        font-weight: 700;
+        color: var(--accent);
+        background: rgba(88,166,255,.08);
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: .85rem;
+        letter-spacing: .5px;
+    }
+
+    .hours-val {
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: .85rem;
+    }
+
+    .hours-good { color: var(--success); background: rgba(63,185,80,.1); }
+    .hours-mid  { color: var(--warning); background: rgba(210,153,34,.1); }
+    .hours-low  { color: var(--error);   background: rgba(248,81,73,.1); }
+
+    .sortable {
+        cursor: pointer;
+        position: relative;
+        transition: color .2s;
+    }
+
+    .sortable:hover { color: var(--accent); }
+
+    .sort-arrow {
+        display: inline-block;
+        margin-left: 4px;
+        font-size: .65rem;
+        opacity: .4;
+        transition: opacity .2s;
+    }
+
+    .sortable.asc .sort-arrow::after  { content: '▲'; }
+    .sortable.desc .sort-arrow::after { content: '▼'; }
+    .sortable:not(.asc):not(.desc) .sort-arrow::after { content: '⇅'; }
+
+    .sortable.asc .sort-arrow,
+    .sortable.desc .sort-arrow { opacity: 1; }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+    const table = document.getElementById('statsTable');
+    if (!table) return;
+
+    const headers = table.querySelectorAll('th.sortable');
+    let currentSort = { col: -1, dir: 'asc' };
+
+    headers.forEach(th => {
+        th.addEventListener('click', () => {
+            const col = parseInt(th.dataset.col);
+            const type = th.dataset.type;
+
+            // Toggle direction
+            let dir = 'asc';
+            if (currentSort.col === col && currentSort.dir === 'asc') dir = 'desc';
+
+            // Clear other headers
+            headers.forEach(h => h.classList.remove('asc', 'desc'));
+            th.classList.add(dir);
+
+            currentSort = { col, dir };
+
+            // Sort rows
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+
+            rows.sort((a, b) => {
+                let aVal = a.children[col].textContent.trim();
+                let bVal = b.children[col].textContent.trim();
+
+                if (type === 'number') {
+                    aVal = parseFloat(aVal.replace(/[^0-9.\-]/g, '')) || 0;
+                    bVal = parseFloat(bVal.replace(/[^0-9.\-]/g, '')) || 0;
+                    return dir === 'asc' ? aVal - bVal : bVal - aVal;
+                } else {
+                    return dir === 'asc'
+                        ? aVal.localeCompare(bVal)
+                        : bVal.localeCompare(aVal);
+                }
+            });
+
+            rows.forEach(row => tbody.appendChild(row));
+        });
+    });
+})();
+</script>
+{% endblock %}

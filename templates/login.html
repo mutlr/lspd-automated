@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LSPD Dashboard — Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #0d1117;
+            --card: #1c2128;
+            --accent: #58a6ff;
+            --text: #e6edf3;
+            --muted: #8b949e;
+            --border: #30363d;
+            --success: #3fb950;
+            --error: #f85149;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ── Animated Gradient Background ────────────────────── */
+        .bg-gradient {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #0d1117 0%, #161b22 25%, #0d1117 50%, #1a1e2e 75%, #0d1117 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            z-index: 0;
+        }
+
+        @keyframes gradientShift {
+            0%   { background-position: 0% 50%; }
+            50%  { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* ── Floating Particles ──────────────────────────────── */
+        .particles {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--accent);
+            border-radius: 50%;
+            opacity: 0;
+            animation: particleFloat linear infinite;
+        }
+
+        .particle:nth-child(1)  { left:10%; animation-duration:12s; animation-delay:0s; }
+        .particle:nth-child(2)  { left:20%; animation-duration:15s; animation-delay:2s; }
+        .particle:nth-child(3)  { left:30%; animation-duration:10s; animation-delay:4s; }
+        .particle:nth-child(4)  { left:40%; animation-duration:18s; animation-delay:1s; }
+        .particle:nth-child(5)  { left:50%; animation-duration:14s; animation-delay:3s; }
+        .particle:nth-child(6)  { left:60%; animation-duration:11s; animation-delay:5s; }
+        .particle:nth-child(7)  { left:70%; animation-duration:16s; animation-delay:2s; }
+        .particle:nth-child(8)  { left:80%; animation-duration:13s; animation-delay:4s; }
+        .particle:nth-child(9)  { left:90%; animation-duration:17s; animation-delay:1s; }
+        .particle:nth-child(10) { left:15%; animation-duration:19s; animation-delay:3s; }
+        .particle:nth-child(11) { left:45%; animation-duration:12s; animation-delay:6s; }
+        .particle:nth-child(12) { left:75%; animation-duration:14s; animation-delay:0s; }
+
+        @keyframes particleFloat {
+            0%   { transform: translateY(100vh) scale(0); opacity: 0; }
+            10%  { opacity: .4; }
+            90%  { opacity: .4; }
+            100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+        }
+
+        /* ── Glow Orbs ───────────────────────────────────────── */
+        .glow-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: .12;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .glow-orb-1 {
+            width: 400px; height: 400px;
+            background: var(--accent);
+            top: -100px; right: -100px;
+            animation: orbFloat1 8s ease-in-out infinite;
+        }
+
+        .glow-orb-2 {
+            width: 300px; height: 300px;
+            background: #8b5cf6;
+            bottom: -80px; left: -80px;
+            animation: orbFloat2 10s ease-in-out infinite;
+        }
+
+        @keyframes orbFloat1 {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-30px, 20px); }
+        }
+
+        @keyframes orbFloat2 {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(20px, -30px); }
+        }
+
+        /* ── Login Card ──────────────────────────────────────── */
+        .login-card {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 420px;
+            margin: 20px;
+            background: rgba(28, 33, 40, .65);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(48, 54, 61, .6);
+            border-radius: 16px;
+            padding: 48px 40px 40px;
+            box-shadow:
+                0 24px 64px rgba(0, 0, 0, .4),
+                0 0 0 1px rgba(88, 166, 255, .05),
+                inset 0 1px 0 rgba(255, 255, 255, .04);
+            animation: cardIn .6s ease;
+        }
+
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(20px) scale(.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .login-brand {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .login-brand .shield {
+            font-size: 3.2rem;
+            display: block;
+            margin-bottom: 12px;
+            filter: drop-shadow(0 0 20px rgba(88,166,255,.4));
+            animation: shieldPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes shieldPulse {
+            0%, 100% { filter: drop-shadow(0 0 20px rgba(88,166,255,.4)); }
+            50% { filter: drop-shadow(0 0 30px rgba(88,166,255,.6)); }
+        }
+
+        .login-brand h1 {
+            font-size: 1.7rem;
+            font-weight: 800;
+            letter-spacing: 5px;
+            background: linear-gradient(135deg, var(--accent), #79c0ff, #a5d8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 4px;
+        }
+
+        .login-brand .subtitle {
+            font-size: .85rem;
+            color: var(--muted);
+            font-weight: 400;
+        }
+
+        /* ── Flash Messages ──────────────────────────────────── */
+        .flash-container {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .flash {
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: .84rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: flashIn .4s ease;
+        }
+
+        .flash-success {
+            background: rgba(63,185,80,.12);
+            border: 1px solid rgba(63,185,80,.25);
+            color: var(--success);
+        }
+
+        .flash-error {
+            background: rgba(248,81,73,.12);
+            border: 1px solid rgba(248,81,73,.25);
+            color: var(--error);
+        }
+
+        @keyframes flashIn {
+            from { opacity: 0; transform: translateY(-6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Form ────────────────────────────────────────────── */
+        .form-group { margin-bottom: 20px; }
+
+        .form-label {
+            display: block;
+            font-size: .8rem;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            background: rgba(13, 17, 23, .6);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 18px;
+            color: var(--text);
+            font-family: 'Courier New', 'Fira Code', monospace;
+            font-size: .95rem;
+            letter-spacing: 2px;
+            outline: none;
+            transition: all .25s ease;
+        }
+
+        .form-input::placeholder {
+            color: rgba(139, 148, 158, .5);
+            letter-spacing: 1px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(88,166,255,.15), 0 0 20px rgba(88,166,255,.08);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--accent), #79c0ff);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: .95rem;
+            font-weight: 700;
+            letter-spacing: .5px;
+            cursor: pointer;
+            transition: all .25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,.1), transparent);
+            opacity: 0;
+            transition: opacity .25s;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(88,166,255,.35);
+        }
+
+        .btn-login:hover::before { opacity: 1; }
+
+        .btn-login:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 16px rgba(88,166,255,.2);
+        }
+
+        /* ── Footer ──────────────────────────────────────────── */
+        .login-footer {
+            text-align: center;
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(48, 54, 61, .5);
+        }
+
+        .login-footer p {
+            font-size: .78rem;
+            color: var(--muted);
+        }
+
+        .login-footer code {
+            background: rgba(88,166,255,.1);
+            color: var(--accent);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: .78rem;
+            font-weight: 600;
+        }
+
+        /* ── Responsive ──────────────────────────────────────── */
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 36px 24px 32px;
+                margin: 16px;
+            }
+
+            .login-brand .shield { font-size: 2.6rem; }
+            .login-brand h1 { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Effects -->
+    <div class="bg-gradient"></div>
+    <div class="glow-orb glow-orb-1"></div>
+    <div class="glow-orb glow-orb-2"></div>
+
+    <div class="particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <!-- Login Card -->
+    <div class="login-card">
+        <div class="login-brand">
+
+            <h1>LSPD</h1>
+            <p class="subtitle">Enter your access key to continue</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-container">
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">
+
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('verify_key') }}">
+            <div class="form-group">
+                <label class="form-label" for="access_key">Access Key</label>
+                <input
+                    type="password"
+                    id="access_key"
+                    name="access_key"
+                    class="form-input"
+                    placeholder="Enter your key..."
+                    required
+                    autocomplete="off"
+                    autofocus
+                >
+            </div>
+
+            <button type="submit" class="btn-login">
+                Authenticate
+            </button>
+        </form>
+
+        <div class="login-footer">
+            <p>Generate a key with <code>/acc</code> in Discord</p>
+        </div>
+    </div>
+
+</body>
+</html>

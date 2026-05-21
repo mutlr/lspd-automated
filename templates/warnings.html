@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Warnings — LSPD{% endblock %}
+{% block header_title %}Warnings{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Warnings</h1>
+
+{% if warnings %}
+<div class="table-wrap">
+    <div class="overflow-x">
+        <table>
+            <thead>
+                <tr>
+                    <th>User ID</th>
+                    <th>Moderator</th>
+                    <th>Reason</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for warning in warnings %}
+                <tr>
+                    <td>
+                        <code style="color:var(--accent);background:rgba(88,166,255,.1);padding:2px 8px;border-radius:4px;font-size:.82rem;">{{ warning.user_id }}</code>
+                    </td>
+                    <td>
+                        <code style="color:var(--muted);background:rgba(139,148,158,.1);padding:2px 8px;border-radius:4px;font-size:.82rem;">{{ warning.mod_id }}</code>
+                    </td>
+                    <td>
+                        <span class="reason-text">{{ warning.reason }}</span>
+                    </td>
+                    <td class="text-muted timestamp-cell" data-ts="{{ warning.timestamp }}">—</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('clear_warnings', user_id=warning.user_id) }}" style="display:inline;" onsubmit="return confirm('Clear ALL warnings for this user?');">
+                            <button type="submit" class="btn btn-danger btn-sm">Clear All</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="card">
+    <div class="empty-state">
+        <div class="empty-icon"></div>
+        <p>No warnings recorded.</p>
+    </div>
+</div>
+{% endif %}
+
+<style>
+    .reason-text {
+        display: inline-block;
+        max-width: 320px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.querySelectorAll('.timestamp-cell').forEach(el => {
+        const ts = parseFloat(el.dataset.ts);
+        if (!isNaN(ts)) {
+            el.textContent = new Date(ts * 1000).toLocaleString();
+        }
+    });
+</script>
+{% endblock %}

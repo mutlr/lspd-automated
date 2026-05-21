@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}On Duty Officers — LSPD{% endblock %}
+{% block header_title %}On Duty Officers{% endblock %}
+
+{% block content %}
+<h1 class="page-title">On Duty Officers</h1>
+
+{% if on_duty %}
+
+<div class="duty-status mb-3">
+    <span class="pulse-dot"></span>
+    <span style="font-size:.88rem;color:var(--success);font-weight:600;">{{ on_duty|length }} officer{{ 's' if on_duty|length != 1 }} currently on duty</span>
+</div>
+
+<div class="grid grid-3">
+    {% for officer in on_duty %}
+    <div class="card duty-card">
+        <div class="duty-card-header">
+            <div class="duty-avatar"></div>
+            <div class="duty-info">
+                <div class="duty-userid">
+                    <code style="color:var(--accent);background:rgba(88,166,255,.1);padding:2px 8px;border-radius:4px;font-size:.82rem;">{{ officer.user_id }}</code>
+                </div>
+                <div class="duty-status-badge">
+                    <span class="badge badge-green">On Duty</span>
+                </div>
+            </div>
+        </div>
+        <div class="duty-card-body">
+            <div class="duty-detail">
+                <span class="duty-detail-label">Clock In</span>
+                <span class="duty-detail-value timestamp-cell" data-ts="{{ officer.clock_in_time }}">—</span>
+            </div>
+            <div class="duty-detail">
+                <span class="duty-detail-label">Duration</span>
+                <span class="duty-detail-value duration-cell" data-ts="{{ officer.clock_in_time }}">
+                    <span class="duration-value">Calculating...</span>
+                </span>
+            </div>
+        </div>
+        <div class="duty-card-bar" style="--progress: 100%;"></div>
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+<div class="card">
+    <div class="empty-state">
+        <div class="empty-icon"></div>
+        <p>No officers currently on duty.</p>
+    </div>
+</div>
+{% endif %}
+
+<style>
+    .duty-status {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .pulse-dot {
+        width: 10px;
+        height: 10px;
+        background: var(--success);
+        border-radius: 50%;
+        animation: pulse 2s ease-in-out infinite;
+        flex-shrink: 0;
+    }
+
+    @keyframes pulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(63,185,80,.5); }
+        50% { box-shadow: 0 0 0 8px rgba(63,185,80,0); }
+    }
+
+    .duty-card {
+        padding: 0;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .duty-card-header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 20px 20px 12px;
+    }
+
+    .duty-avatar {
+        width: 46px;
+        height: 46px;
+        background: rgba(88,166,255,.08);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .duty-info { flex: 1; }
+
+    .duty-userid { margin-bottom: 6px; }
+
+    .duty-card-body {
+        padding: 0 20px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .duty-detail {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .duty-detail-label {
+        font-size: .78rem;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: .5px;
+    }
+
+    .duty-detail-value {
+        font-size: .85rem;
+        color: var(--text);
+        font-weight: 500;
+    }
+
+    .duration-value {
+        font-family: 'Courier New', monospace;
+        font-weight: 700;
+        color: var(--success);
+        background: rgba(63,185,80,.08);
+        padding: 3px 10px;
+        border-radius: 6px;
+        font-size: .85rem;
+        letter-spacing: .5px;
+    }
+
+    .duty-card-bar {
+        height: 3px;
+        background: linear-gradient(90deg, var(--success), var(--accent));
+        opacity: .6;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Format clock-in timestamps
+    document.querySelectorAll('.timestamp-cell').forEach(el => {
+        const ts = parseFloat(el.dataset.ts);
+        if (!isNaN(ts)) {
+            el.textContent = new Date(ts * 1000).toLocaleString();
+        }
+    });
+
+    // Live-updating duration counters
+    function formatDuration(seconds) {
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = Math.floor(seconds % 60);
+        return (h > 0 ? h + 'h ' : '') +
+               (m > 0 || h > 0 ? String(m).padStart(2, '0') + 'm ' : '') +
+               String(s).padStart(2, '0') + 's';
+    }
+
+    function updateDurations() {
+        const now = Date.now() / 1000;
+        document.querySelectorAll('.duration-cell').forEach(el => {
+            const ts = parseFloat(el.dataset.ts);
+            if (!isNaN(ts)) {
+                const elapsed = Math.max(0, now - ts);
+                el.querySelector('.duration-value').textContent = formatDuration(elapsed);
+            }
+        });
+    }
+
+    updateDurations();
+    setInterval(updateDurations, 1000);
+</script>
+{% endblock %}

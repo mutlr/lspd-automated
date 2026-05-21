@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Blacklist — LSPD{% endblock %}
+{% block header_title %}Blacklist{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Blacklist</h1>
+
+<!-- Add to Blacklist -->
+<div class="card mb-3">
+    <h3 style="font-size:.95rem;font-weight:600;margin-bottom:16px;color:var(--muted);">Add User to Blacklist</h3>
+    <form method="POST" action="{{ url_for('blacklist_add') }}" class="add-form">
+        <input
+            type="text"
+            name="user_id"
+            class="input"
+            placeholder="Enter User ID..."
+            required
+            style="flex:1;min-width:200px;"
+        >
+        <button type="submit" class="btn btn-primary">Add</button>
+    </form>
+</div>
+
+<!-- Blacklist Table -->
+{% if blacklist %}
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>User ID</th>
+                <th style="width:140px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in blacklist %}
+            <tr>
+                <td>
+                    <code style="color:var(--error);background:rgba(248,81,73,.1);padding:4px 12px;border-radius:6px;font-size:.88rem;font-weight:600;">{{ entry.user_id }}</code>
+                </td>
+                <td>
+                    <form method="POST" action="{{ url_for('blacklist_remove', user_id=entry.user_id) }}" style="display:inline;" onsubmit="return confirm('Remove this user from the blacklist?');">
+                        <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card">
+    <div class="empty-state">
+        <div class="empty-icon"></div>
+        <p>Blacklist is empty.</p>
+    </div>
+</div>
+{% endif %}
+
+<style>
+    .add-form {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+</style>
+{% endblock %}

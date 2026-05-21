@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Security Logs — LSPD{% endblock %}
+{% block header_title %}Security Logs{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Security Logs</h1>
+
+{% if logs %}
+<div class="table-wrap">
+    <div class="overflow-x">
+        <table>
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>User</th>
+                    <th>Details</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>
+                        {% set evt = log.event_type|upper %}
+                        {% if evt in ('SCAM', 'NUKE_CHANNEL', 'NUKE_ROLE', 'MASS_BAN', 'MASS_KICK') %}
+                            <span class="badge badge-red">{{ log.event_type }}</span>
+                        {% elif evt in ('SPAM', 'FLOOD', 'WEBHOOK', 'MENTION_SPAM') %}
+                            <span class="badge badge-orange">{{ log.event_type }}</span>
+                        {% elif evt == 'AGE_GATE' %}
+                            <span class="badge badge-yellow">{{ log.event_type }}</span>
+                        {% else %}
+                            <span class="badge badge-blue">{{ log.event_type }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="user-cell">
+                            <code style="color:var(--accent);background:rgba(88,166,255,.1);padding:2px 8px;border-radius:4px;font-size:.82rem;">{{ log.user_id }}</code>
+                            {% if log.user_name %}
+                                <span class="text-muted" style="font-size:.82rem;margin-left:6px;">{{ log.user_name }}</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="details-text">{{ log.details }}</span>
+                    </td>
+                    <td class="text-muted timestamp-cell" data-ts="{{ log.timestamp }}" style="white-space:nowrap;">—</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="card">
+    <div class="empty-state">
+        <div class="empty-icon"></div>
+        <p>No security events recorded.</p>
+    </div>
+</div>
+{% endif %}
+
+<style>
+    .user-cell {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .details-text {
+        display: inline-block;
+        max-width: 360px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.querySelectorAll('.timestamp-cell').forEach(el => {
+        const ts = parseFloat(el.dataset.ts);
+        if (!isNaN(ts)) {
+            el.textContent = new Date(ts * 1000).toLocaleString();
+        }
+    });
+</script>
+{% endblock %}

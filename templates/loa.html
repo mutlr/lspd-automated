@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}LOA Requests — LSPD{% endblock %}
+{% block header_title %}LOA Requests{% endblock %}
+
+{% block content %}
+<h1 class="page-title">LOA Requests</h1>
+
+{% if loa_requests %}
+<div class="table-wrap">
+    <div class="overflow-x">
+        <table>
+            <thead>
+                <tr>
+                    <th>User ID</th>
+                    <th>Start</th>
+                    <th>End</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in loa_requests %}
+                <tr>
+                    <td>
+                        <code style="color:var(--accent);background:rgba(88,166,255,.1);padding:2px 8px;border-radius:4px;font-size:.82rem;">{{ req.user_id }}</code>
+                    </td>
+                    <td class="text-muted">{{ req.start_date }}</td>
+                    <td class="text-muted">{{ req.end_date }}</td>
+                    <td>
+                        <span class="reason-text">{{ req.reason }}</span>
+                    </td>
+                    <td>
+                        {% if req.approved %}
+                            <span class="badge badge-green">Approved</span>
+                        {% else %}
+                            <span class="badge badge-yellow">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if not req.approved %}
+                        <div class="action-buttons">
+                            <form method="POST" action="{{ url_for('loa_approve', user_id=req.user_id) }}" style="display:inline;">
+                                <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                            </form>
+                            <form method="POST" action="{{ url_for('loa_deny', user_id=req.user_id) }}" style="display:inline;">
+                                <button type="submit" class="btn btn-danger btn-sm">Deny</button>
+                            </form>
+                        </div>
+                        {% else %}
+                            <span class="text-muted" style="font-size:.82rem;">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="card">
+    <div class="empty-state">
+        <div class="empty-icon"></div>
+        <p>No LOA requests.</p>
+    </div>
+</div>
+{% endif %}
+
+<style>
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .reason-text {
+        display: inline-block;
+        max-width: 280px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+</style>
+{% endblock %}
